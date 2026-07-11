@@ -1065,10 +1065,13 @@ function populateVoiceList() {
   if (jaVoices.length === 0) {
     const opt = document.createElement("option");
     opt.value = "";
-    opt.innerText = "기본 일본어 음성 (미설치)";
+    opt.innerText = "기본 브라우저 음성 사용 (선택 불가)";
     select.appendChild(opt);
+    select.disabled = true; // 선택할 목록이 없을 때는 비활성화 처리
     return;
   }
+  
+  select.disabled = false;
 
   // 현재 선택된 성별에 맞춰 우선 필터링
   const targetGender = state.selectedGender || 'male';
@@ -1145,13 +1148,21 @@ function saveVoiceSettings() {
   saveStateToLocalStorage();
 }
 
+function ensureVoicesLoaded() {
+  const select = document.getElementById("tts-voice-select");
+  // 선택창이 비활성화 상태이거나 채워지지 않았으면 재탐색
+  if (select && (select.disabled || select.options.length <= 1)) {
+    populateVoiceList();
+  }
+}
+
 function toggleTtsSettings() {
   const panel = document.getElementById("tts-settings-panel");
   const isOpen = panel.classList.toggle("open");
   
   // 패널이 열릴 때 최신 음성 목록을 다시 한 번 갱신합니다.
   if (isOpen) {
-    populateVoiceList();
+    ensureVoicesLoaded();
   }
 }
 

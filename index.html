@@ -447,7 +447,7 @@
       </select>
       
       <label for="tts-voice-select">세부 일본어 목소리:</label>
-      <select id="tts-voice-select" onchange="saveVoiceSettings()"></select>
+      <select id="tts-voice-select" onchange="saveVoiceSettings()" onmousedown="ensureVoicesLoaded()" ontouchstart="ensureVoicesLoaded()"></select>
       
       <div class="tts-helper-desc">※ 시스템의 고품질 자연어 발음(Online/Natural/Neural)이 우선 적용되어 기계음 느낌을 줄입니다. 크롬/엣지 브라우저를 권장합니다.</div>
     </div>
