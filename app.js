@@ -52,13 +52,23 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // 모바일/사파리 대응: 첫 화면 터치/클릭 제스처 발생 시 음성 목록 로드 시도
+  // 모바일/사파리 대응: 첫 화면 터치/클릭 제스처 발생 시 음성 목록 로드 및 엔진 잠금 해제(프라이밍)
   const loadVoicesOnGesture = () => {
     if (typeof speechSynthesis !== 'undefined') {
       const voices = speechSynthesis.getVoices();
       if (voices.length > 0) {
         populateVoiceList();
-        // 목록이 한 번 로드되면 리스너 제거
+        
+        // 프라이밍 (빈 소리를 내어 모바일 브라우저의 오디오 컨텍스트 강제 활성화)
+        try {
+          const silentUtterance = new SpeechSynthesisUtterance("");
+          silentUtterance.volume = 0;
+          speechSynthesis.speak(silentUtterance);
+        } catch (e) {
+          console.warn("TTS 프라이밍 실패:", e);
+        }
+        
+        // 목록이 한 번 로드되고 활성화되면 리스너 제거
         document.removeEventListener("click", loadVoicesOnGesture);
         document.removeEventListener("touchstart", loadVoicesOnGesture);
       }
@@ -1239,7 +1249,9 @@ function playTTS(event, elementId, rawText = null, forceGender = null) {
 
     utterance.onerror = (err) => {
       console.warn("TTS 재생 중 에러 발생:", err);
-      if (statusEl) statusEl.innerText = "대기 중...";
+      if (statusEl) {
+        statusEl.innerText = `⚠️ 재생 오류: ${err.error || '지원되지 않는 보이스'}`;
+      }
       if (window.currentUtterance === utterance) {
         window.currentUtterance = null;
       }
