@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="하루 15분, 3개월 만에 완전 초보에서 일본어 회화 및 듣기를 마스터하는 개인화 학습 시스템. 간격 반복(Spaced Repetition) 단어장, 오디오 쉐도잉, 상황별 롤플레이 훈련을 제공합니다.">
+  <title>일본어 3개월 마스터 | 일일 15분 학습 시스템</title>
+  <!-- Google Fonts & Lucide Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@300;400;600;800&family=Sawarabi+Gothic&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Light Effects -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- App Shell -->
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="logo-emoji">🌸</span>
+        <div class="brand-text">
+          <h1>日本語 Master</h1>
+          <span>3-Month System</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+          대시보드
+        </button>
+        <button class="nav-item" id="nav-learn" onclick="switchTab('learn')">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          오늘의 학습
+        </button>
+        <button class="nav-item" id="nav-review" onclick="switchTab('review')">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          오답/간격 복습
+        </button>
+        <button class="nav-item" id="nav-dictionary" onclick="switchTab('dictionary')">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+          나만의 단어장
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="streak-card">
+          <div class="streak-info">
+            <span class="streak-title">🔥 연속 학습</span>
+            <span class="streak-count" id="sidebar-streak-days">0일째</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar-fill" id="sidebar-progress-fill" style="width: 0%;"></div>
+          </div>
+          <span class="progress-text" id="sidebar-progress-text">완료율 0% (0일/90일)</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="welcome-message">
+          <h2 id="top-greeting">안녕하세요! 🌸</h2>
+          <p id="top-subtitle">오늘의 15분 미션이 기다리고 있습니다.</p>
+        </div>
+        <div class="user-stats">
+          <div class="stat-badge">
+            <span class="badge-label">목표 언어</span>
+            <span class="badge-val">일본어 (초급)</span>
+          </div>
+          <div class="stat-badge primary">
+            <span class="badge-label">학습 단계</span>
+            <span class="badge-val" id="top-stage-badge">1단계: 생존 기초</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Views (SPA Tabs) -->
+      <div class="content-view-container">
+
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="content-view active">
+          <!-- Quick Status Cards -->
+          <div class="dashboard-grid">
+            <div class="glass-card stat-card">
+              <div class="card-icon">⚡</div>
+              <div class="card-data">
+                <h3>오늘의 미션</h3>
+                <p id="dash-today-mission-status">시작 전 (15분 소요)</p>
+              </div>
+              <button class="btn btn-primary" onclick="startTodayMission()">학습 시작</button>
+            </div>
+            
+            <div class="glass-card stat-card">
+              <div class="card-icon">🎯</div>
+              <div class="card-data">
+                <h3>누적 완료</h3>
+                <p id="dash-completed-days-text">0 일 완료</p>
+              </div>
+            </div>
+
+            <div class="glass-card stat-card">
+              <div class="card-icon">🧠</div>
+              <div class="card-data">
+                <h3>복습 대기 단어</h3>
+                <p id="dash-review-count">0 개</p>
+              </div>
+              <button class="btn btn-secondary" onclick="switchTab('review')">복습하기</button>
+            </div>
+          </div>
+
+          <!-- Roadmap Title -->
+          <div class="roadmap-header">
+            <h3>90일 언어 완성 로드맵</h3>
+            <div class="roadmap-legend">
+              <span class="legend-item"><span class="dot done"></span>완료</span>
+              <span class="legend-item"><span class="dot current"></span>오늘 학습</span>
+              <span class="legend-item"><span class="dot locked"></span>대기</span>
+            </div>
+          </div>
+
+          <!-- Roadmap Grid -->
+          <div class="glass-card roadmap-card">
+            <div class="stage-nav">
+              <button class="stage-tab active" id="btn-stage-1" onclick="filterRoadmapStage(1)">1단계 (1~30일)</button>
+              <button class="stage-tab" id="btn-stage-2" onclick="filterRoadmapStage(2)">2단계 (31~60일)</button>
+              <button class="stage-tab" id="btn-stage-3" onclick="filterRoadmapStage(3)">3단계 (61~90일)</button>
+            </div>
+            <div class="roadmap-grid-container" id="roadmap-grid">
+              <!-- JS가 동적으로 1~30 / 31~60 / 61~90 그리드를 렌더링함 -->
+            </div>
+          </div>
+        </section>
+
+
+        <!-- 2. DAILY LEARN VIEW (15-Minute Mission) -->
+        <section id="view-learn" class="content-view">
+          <div class="learn-header-container">
+            <div class="mission-title-area">
+              <span class="day-badge" id="learn-day-badge">Day 1</span>
+              <h3 id="learn-day-title">만남과 감사 인사</h3>
+            </div>
+            
+            <!-- Timer Display -->
+            <div class="glass-card timer-card">
+              <div class="timer-icon">⏳</div>
+              <div class="timer-digits" id="mission-timer">15:00</div>
+              <div class="timer-controls">
+                <button class="timer-btn" id="timer-toggle-btn" onclick="toggleTimer()">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </button>
+                <button class="timer-btn" onclick="resetTimer()">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mission Progress Steps Indicator -->
+          <div class="mission-steps">
+            <div class="step-indicator active" id="step-ind-1">
+              <div class="step-num">1</div>
+              <span class="step-label">단어 & 표현 (5분)</span>
+            </div>
+            <div class="step-line" id="step-line-1"></div>
+            <div class="step-indicator" id="step-ind-2">
+              <div class="step-num">2</div>
+              <span class="step-label">듣기 & 쉐도잉 (5분)</span>
+            </div>
+            <div class="step-line" id="step-line-2"></div>
+            <div class="step-indicator" id="step-ind-3">
+              <div class="step-num">3</div>
+              <span class="step-label">롤플레이 (5분)</span>
+            </div>
+          </div>
+
+          <!-- STEP 1 CONTENT: VOCABULARY FLASHCARD -->
+          <div class="mission-step-content active" id="mission-step-1">
+            <div class="step-instruction">
+              <p>💡 <b>단어 암기 미션:</b> 카드를 클릭해 뒤집으면서 소리 내어 읽고 암기해 보세요. (단어 완료 시 하단 단어 버튼 클릭)</p>
+            </div>
+            
+            <div class="flashcard-wrapper">
+              <div class="flashcard" id="vocab-card" onclick="flipCard()">
+                <div class="flashcard-inner">
+                  <!-- Front -->
+                  <div class="flashcard-front">
+                    <div class="card-star" id="vocab-bookmark-btn" onclick="toggleVocabularyBookmark(event)">★</div>
+                    <span class="card-pronunciation" id="vocab-kana">こんにちは</span>
+                    <h4 class="card-word" id="vocab-word">こんにちは</h4>
+                    <p class="card-romaji" id="vocab-romaji">konnichiwa</p>
+                    <div class="card-audio-btn" onclick="playTTS(event, 'vocab-word')">
+                      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                      듣기
+                    </div>
+                    <div class="tap-hint">카드를 클릭하면 뜻을 확인합니다.</div>
+                  </div>
+                  <!-- Back -->
+                  <div class="flashcard-back">
+                    <span class="card-meaning-label">의미</span>
+                    <h4 class="card-meaning" id="vocab-meaning">안녕하세요 (낮 인사)</h4>
+                    <div class="card-example-box">
+                      <span class="example-label">실전 예문</span>
+                      <p class="card-example-jp" id="vocab-example-jp">こんにちは、お元気ですか？</p>
+                      <p class="card-example-ko" id="vocab-example-ko">안녕하세요, 잘 지내시나요?</p>
+                      <div class="example-audio" onclick="playTTS(event, 'vocab-example-jp')">🔊 예문 듣기</div>
+                    </div>
+                    <div class="tap-hint">카드를 다시 클릭하면 앞면으로 돌아갑니다.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Flashcard Nav & Spaced Repetition Buttons -->
+            <div class="flashcard-actions">
+              <button class="btn btn-secondary" onclick="prevVocab()">이전 단어</button>
+              <div class="vocab-indicator"><span id="vocab-current-idx">1</span> / <span id="vocab-total-idx">4</span></div>
+              <button class="btn btn-primary" onclick="nextVocab()">다음 단어</button>
+            </div>
+
+            <!-- Next Step Prompt -->
+            <div class="step-transition-bar">
+              <button class="btn btn-accent" id="btn-goto-step-2" onclick="goStep(2)" disabled>모든 단어 학습 완료 ➔</button>
+            </div>
+          </div>
+
+          <!-- STEP 2 CONTENT: SHADOWING PRACTICE -->
+          <div class="mission-step-content" id="mission-step-2">
+            <div class="step-instruction">
+              <p>🎧 <b>오디오 쉐도잉 미션:</b> 일본어 음성을 듣고 동시에 소리 내어 따라 읽어 보세요. 최소 5회 반복하는 것을 추천합니다!</p>
+            </div>
+
+            <div class="shadowing-container">
+              <div class="glass-card shadowing-card">
+                <div class="audio-control-panel">
+                  <button class="play-audio-huge" onclick="playTTS(null, 'shadow-jp-text')">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    원어민 발음 듣기
+                  </button>
+                  <div class="audio-status" id="shadow-audio-status">대기 중...</div>
+                </div>
+
+                <div class="shadowing-texts">
+                  <p class="shadowing-kana" id="shadow-kana-text">はじめまして、よろしくおねがいします。</p>
+                  <h4 class="shadowing-jp" id="shadow-jp-text">はじめまして、よろしくお願いします。</h4>
+                  <p class="shadowing-romaji" id="shadow-romaji-text">hajimemashite, yoroshiku onegai shimasu</p>
+                  <p class="shadowing-translation" id="shadow-translation-text">처음 뵙겠습니다. 잘 부탁드립니다.</p>
+                </div>
+
+                <div class="shadowing-tip">
+                  <span class="tip-badge">💡 발음 꿀팁</span>
+                  <p id="shadow-tip-text">첫 대면에서 고개를 가볍게 숙이며 말해 보세요.</p>
+                </div>
+              </div>
+
+              <!-- Repeated practice checklist -->
+              <div class="practice-counter">
+                <h4>쉐도잉 횟수 체크</h4>
+                <div class="counter-checkboxes">
+                  <label class="count-check"><input type="checkbox" onchange="checkShadowCount()"> <span>1회</span></label>
+                  <label class="count-check"><input type="checkbox" onchange="checkShadowCount()"> <span>2회</span></label>
+                  <label class="count-check"><input type="checkbox" onchange="checkShadowCount()"> <span>3회</span></label>
+                  <label class="count-check"><input type="checkbox" onchange="checkShadowCount()"> <span>4회</span></label>
+                  <label class="count-check"><input type="checkbox" onchange="checkShadowCount()"> <span>5회🔥</span></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="flashcard-actions">
+              <button class="btn btn-secondary" onclick="prevShadow()">이전 표현</button>
+              <div class="vocab-indicator"><span id="shadow-current-idx">1</span> / <span id="shadow-total-idx">2</span></div>
+              <button class="btn btn-primary" onclick="nextShadow()">다음 표현</button>
+            </div>
+
+            <div class="step-transition-bar">
+              <button class="btn btn-accent" id="btn-goto-step-3" onclick="goStep(3)" disabled>쉐도잉 훈련 완료 ➔</button>
+            </div>
+          </div>
+
+          <!-- STEP 3 CONTENT: INTERACTIVE ROLEPLAY -->
+          <div class="mission-step-content" id="mission-step-3">
+            <div class="step-instruction">
+              <p>💬 <b>실전 롤플레이 미션:</b> 배운 표현을 실전에 적용해 봅시다. 현지인의 말에 알맞은 대사를 선택하여 대화를 이어가세요!</p>
+            </div>
+
+            <div class="roleplay-container">
+              <!-- Chat logs -->
+              <div class="chat-window glass-card" id="chat-window">
+                <!-- JS가 롤플레이 대화 내역을 동적으로 채움 -->
+              </div>
+
+              <!-- Options Selection -->
+              <div class="options-panel">
+                <h4>내 대답 선택하기</h4>
+                <div class="options-list" id="chat-options-container">
+                  <!-- 대화 선택지 버튼이 동적으로 렌더링됨 -->
+                </div>
+              </div>
+            </div>
+
+            <div class="step-transition-bar">
+              <button class="btn btn-success" id="btn-complete-mission" onclick="finishTodayMission()" style="display:none;">오늘의 15분 미션 완료하기 🎉</button>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- 3. REVIEW / SPACED REPETITION VIEW -->
+        <section id="view-review" class="content-view">
+          <div class="roadmap-header">
+            <h3>간격 반복 복습 (Spaced Repetition)</h3>
+            <p>뇌의 망각 주기에 따라, 적절한 타이밍에 복습이 필요한 단어들이 노출됩니다.</p>
+          </div>
+
+          <div class="review-dashboard" id="review-dashboard">
+            <div class="glass-card review-stats-card">
+              <div class="review-stat-number" id="review-pending-count">0</div>
+              <div class="review-stat-label">오늘 복습이 필요한 단어</div>
+              <button class="btn btn-accent" id="btn-start-review" onclick="startSpacedReview()">지금 복습 시작</button>
+            </div>
+          </div>
+
+          <!-- Active Review Card Area -->
+          <div class="spaced-review-area" id="spaced-review-area" style="display: none;">
+            <div class="flashcard-wrapper">
+              <div class="flashcard" id="review-flashcard" onclick="flipReviewCard()">
+                <div class="flashcard-inner">
+                  <div class="flashcard-front">
+                    <span class="card-pronunciation" id="review-kana">にほんご</span>
+                    <h4 class="card-word" id="review-word">日本語</h4>
+                    <p class="card-romaji" id="review-romaji">nihongo</p>
+                    <div class="card-audio-btn" onclick="playTTS(event, 'review-word')">🔊 발음 듣기</div>
+                    <div class="tap-hint">클릭하여 의미 보기</div>
+                  </div>
+                  <div class="flashcard-back">
+                    <h4 class="card-meaning" id="review-meaning">일본어</h4>
+                    <div class="card-example-box">
+                      <p class="card-example-jp" id="review-example-jp">日本語が上手ですね。</p>
+                      <p class="card-example-ko" id="review-example-ko">일본어를 잘하시네요.</p>
+                    </div>
+                    <div class="tap-hint">클릭하여 앞면으로 돌아가기</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Feedback Level buttons for Spaced Repetition -->
+            <div class="srs-feedback-container">
+              <p class="srs-question">이 단어의 암기 난이도는 어땠나요?</p>
+              <div class="srs-buttons">
+                <button class="btn btn-srs easy" onclick="submitSRSFeedback('easy')">
+                  <span class="emoji">😀</span>
+                  <span class="label">쉬움<br><small>4일 후 복습</small></span>
+                </button>
+                <button class="btn btn-srs medium" onclick="submitSRSFeedback('medium')">
+                  <span class="emoji">😐</span>
+                  <span class="label">보통<br><small>1일 후 복습</small></span>
+                </button>
+                <button class="btn btn-srs hard" onclick="submitSRSFeedback('hard')">
+                  <span class="emoji">😰</span>
+                  <span class="label">어려움<br><small>즉시 복습</small></span>
+                </button>
+              </div>
+            </div>
+            
+            <button class="btn btn-secondary review-exit-btn" onclick="exitReview()">복습 종료</button>
+          </div>
+        </section>
+
+
+        <!-- 4. DICTIONARY / BOOKMARKS VIEW -->
+        <section id="view-dictionary" class="content-view">
+          <div class="roadmap-header">
+            <h3>나만의 별표 단어장</h3>
+            <p>학습 도중 중요하거나 안 외워져서 별표(★)를 표시한 단어 리스트입니다.</p>
+          </div>
+
+          <div class="glass-card dictionary-list-card">
+            <div class="dict-search-bar">
+              <input type="text" id="dict-search-input" placeholder="단어, 발음 또는 의미 검색..." oninput="filterDictionary()">
+            </div>
+
+            <div class="dict-table-container">
+              <table class="dict-table">
+                <thead>
+                  <tr>
+                    <th>한자/단어</th>
+                    <th>요미가나</th>
+                    <th>발음</th>
+                    <th>의미</th>
+                    <th>예문</th>
+                    <th>관리</th>
+                  </tr>
+                </thead>
+                <tbody id="dict-list-tbody">
+                  <!-- JS에서 북마크된 단어를 동적으로 채움 -->
+                </tbody>
+              </table>
+              <div class="empty-state" id="dict-empty-state" style="display: none;">
+                <span class="empty-icon">🌸</span>
+                <p>북마크된 단어가 없습니다. 학습 중 카드 앞면의 별표(★)를 눌러 등록해 보세요!</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Mission Success Modal -->
+  <div class="modal-overlay" id="success-modal">
+    <div class="glass-card modal-content">
+      <div class="success-icon">🎉</div>
+      <h3 class="modal-title">오늘의 미션 완료!</h3>
+      <p class="modal-desc" id="modal-success-desc">Day 1 학습을 훌륭히 마쳤습니다.<br>내일 미션도 잊지 마세요!</p>
+      
+      <div class="modal-stats">
+        <div class="modal-stat-box">
+          <span class="stat-num" id="modal-streak-num">1일</span>
+          <span class="stat-lbl">연속 학습</span>
+        </div>
+        <div class="modal-stat-box">
+          <span class="stat-num">15분</span>
+          <span class="stat-lbl">학습 시간</span>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary modal-close-btn" onclick="closeSuccessModal()">대시보드로 돌아가기</button>
+    </div>
+  </div>
+
+  <!-- Audio Settings Helper (Hidden/Floating for TTS Configuration) -->
+  <div class="tts-helper" id="tts-settings-panel">
+    <div class="tts-helper-toggle" onclick="toggleTtsSettings()">⚙️ 음성 설정</div>
+    <div class="tts-helper-body">
+      <label for="tts-gender-select">내 성별 설정:</label>
+      <select id="tts-gender-select" onchange="changeTtsGender()">
+        <option value="male" selected>남자 (남성 목소리 매칭)</option>
+        <option value="female">여자 (여성 목소리 매칭)</option>
+      </select>
+      
+      <label for="tts-voice-select">세부 일본어 목소리:</label>
+      <select id="tts-voice-select" onchange="saveVoiceSettings()"></select>
+      
+      <div class="tts-helper-desc">※ 시스템의 고품질 자연어 발음(Online/Natural/Neural)이 우선 적용되어 기계음 느낌을 줄입니다. 크롬/엣지 브라우저를 권장합니다.</div>
+    </div>
+  </div>
+
+  <!-- Canvas for completion particle effect -->
+  <canvas id="canvas-particles" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; display:none;"></canvas>
+
+  <!-- Script Injection -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
