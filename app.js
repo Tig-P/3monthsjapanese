@@ -1151,6 +1151,9 @@ function playTTS(event, elementId, rawText = null, forceGender = null) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ja-JP';
     
+    // 가비지 컬렉터(GC)로 인해 재생 도중 콜백이 소멸되는 현상 방지
+    window.currentUtterance = utterance;
+    
     const voices = speechSynthesis.getVoices();
     const jaVoices = voices.filter(v => v.lang.startsWith("ja") || v.lang.includes("JP"));
     
@@ -1205,18 +1208,32 @@ function playTTS(event, elementId, rawText = null, forceGender = null) {
 
     utterance.onend = () => {
       if (statusEl) statusEl.innerText = "재생 완료. 따라 해보세요!";
+      if (window.currentUtterance === utterance) {
+        window.currentUtterance = null;
+      }
       resolve();
     };
 
     utterance.onerror = (err) => {
       console.warn("TTS 재생 중 에러 발생:", err);
       if (statusEl) statusEl.innerText = "대기 중...";
+      if (window.currentUtterance === utterance) {
+        window.currentUtterance = null;
+      }
       resolve();
     };
 
-    // 중단 후 재생
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
+    // 크롬 및 모바일 브라우저의 cancel - speak 타이밍 버그 해결
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+      // cancel() 상태 전이가 완료될 수 있도록 약간의 딜레이 후 speak 호출
+      setTimeout(() => {
+        speechSynthesis.speak(utterance);
+      }, 100);
+    } else {
+      // 재생 중인 오디오가 없으면 동기식으로 즉시 speak를 호출하여 iOS/Safari의 사용자 액티베이션 정책 만족
+      speechSynthesis.speak(utterance);
+    }
   });
 }
 
