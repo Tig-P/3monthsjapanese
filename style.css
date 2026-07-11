@@ -1613,6 +1613,45 @@ body {
   line-height: 1.4;
 }
 
+.tts-helper-tip {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  border-top: 1px dashed var(--border-color);
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.tts-helper-tip summary {
+  font-weight: 700;
+  color: var(--accent-pink);
+  cursor: pointer;
+  outline: none;
+  list-style: none;
+}
+
+.tts-helper-tip summary::-webkit-details-marker {
+  display: none;
+}
+
+.tts-helper-tip summary::before {
+  content: "❓ ";
+}
+
+.tts-helper-tip p {
+  margin: 0.25rem 0;
+  line-height: 1.35;
+}
+
+.tts-helper-tip ul {
+  margin: 0;
+  padding-left: 0.85rem;
+  line-height: 1.35;
+}
+
+.tts-helper-tip li {
+  margin-bottom: 0.15rem;
+}
+
 /* Floating animation */
 @keyframes float {
   0% { transform: translateY(0px); }
