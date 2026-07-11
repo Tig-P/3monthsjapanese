@@ -52,6 +52,21 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  // 모바일/사파리 대응: 첫 화면 터치/클릭 제스처 발생 시 음성 목록 로드 시도
+  const loadVoicesOnGesture = () => {
+    if (typeof speechSynthesis !== 'undefined') {
+      const voices = speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        populateVoiceList();
+        // 목록이 한 번 로드되면 리스너 제거
+        document.removeEventListener("click", loadVoicesOnGesture);
+        document.removeEventListener("touchstart", loadVoicesOnGesture);
+      }
+    }
+  };
+  document.addEventListener("click", loadVoicesOnGesture);
+  document.addEventListener("touchstart", loadVoicesOnGesture);
+
   // 윈도우 크기 변화나 탭 포커스 변경 대비 복습 화면 갱신
   refreshReviewStats();
   renderBookmarks();
@@ -1029,9 +1044,12 @@ function populateVoiceList() {
   select.innerHTML = "";
   const voices = speechSynthesis.getVoices();
   
-  // 일본어 보이스 필터링 및 고품질 순 정렬
+  // 일본어 보이스 필터링 및 고품질 순 정렬 (대소문자 구분 없앰)
   const jaVoices = voices
-    .filter(v => v.lang.startsWith("ja") || v.lang.includes("JP"))
+    .filter(v => {
+      const lang = v.lang.toLowerCase();
+      return lang.startsWith("ja") || lang.includes("jp");
+    })
     .sort((a, b) => getVoiceQualityScore(b) - getVoiceQualityScore(a));
   
   if (jaVoices.length === 0) {
@@ -1119,7 +1137,12 @@ function saveVoiceSettings() {
 
 function toggleTtsSettings() {
   const panel = document.getElementById("tts-settings-panel");
-  panel.classList.toggle("open");
+  const isOpen = panel.classList.toggle("open");
+  
+  // 패널이 열릴 때 최신 음성 목록을 다시 한 번 갱신합니다.
+  if (isOpen) {
+    populateVoiceList();
+  }
 }
 
 // 일본어 텍스트 음성 출력 (성별 및 자연어 튜닝 탑재 - Promise 기반 동기화 지원)
